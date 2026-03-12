@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import CameraFeed from "@/components/CameraFeed";
 import { useMonitoring } from "@/context/MonitoringContext";
+import { API_BASE } from "@/lib/apiConfig";
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Camera, Wifi, WifiOff, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ const CamerasPage = () => {
   useEffect(() => {
     const fetchCameras = async () => {
       try {
-        const response = await fetch("/cameras");
+        const response = await fetch(`${API_BASE}/cameras`);
         if (response.ok) {
           const data = await response.json();
           const loadedCameras = data.cameras.map((cam: any) => ({
@@ -85,7 +86,7 @@ const CamerasPage = () => {
     const camId = `cam_${Math.floor(Math.random() * 1000)}`;
 
     try {
-      const response = await fetch("/cameras", {
+      const response = await fetch(`${API_BASE}/cameras`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -122,7 +123,7 @@ const CamerasPage = () => {
     if (!camToRemove) return;
 
     try {
-      const response = await fetch(`/cameras/${camToRemove.camId}`, {
+      const response = await fetch(`${API_BASE}/cameras/${camToRemove.camId}`, {
         method: "DELETE"
       });
 

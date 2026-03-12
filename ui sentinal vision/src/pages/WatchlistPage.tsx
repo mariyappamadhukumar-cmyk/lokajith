@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
+import { API_BASE } from "@/lib/apiConfig";
 import { Plus, Trash2, Search, UserCheck, UserX, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +51,7 @@ const WatchlistPage = () => {
 
   const fetchWatchlist = async () => {
     try {
-      const res = await fetch("/watchlist");
+      const res = await fetch(`${API_BASE}/watchlist`);
       const data = await res.json();
       setEntries(data.suspects.map((s: any) => ({
         id: s.id,
@@ -88,7 +89,7 @@ const WatchlistPage = () => {
     formData.append("file", newEntry.file);
 
     try {
-      const res = await fetch("/watchlist", {
+      const res = await fetch(`${API_BASE}/watchlist`, {
         method: "POST",
         body: formData,
       });
@@ -109,7 +110,7 @@ const WatchlistPage = () => {
 
   const removeEntry = async (id: string) => {
     try {
-      await fetch(`/watchlist/${id}`, { method: "DELETE" });
+      await fetch(`${API_BASE}/watchlist/${id}`, { method: "DELETE" });
       setEntries(prev => prev.filter(e => e.id !== id));
     } catch (err) {
       console.error(err);

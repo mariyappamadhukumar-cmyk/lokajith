@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import LiveStats from "@/components/LiveStats";
 import CameraFeed from "@/components/CameraFeed";
+import { API_BASE } from "@/lib/apiConfig";
 import AlertsPanel from "@/components/AlertsPanel";
 import EventHeatmap from "@/components/EventHeatmap";
 import { useMonitoring } from "@/context/MonitoringContext";
@@ -46,7 +47,7 @@ const Index = () => {
           <div className="bg-card border border-border rounded-lg p-4">
             <div className="relative rounded-lg overflow-hidden bg-black/20 aspect-video w-full flex items-center justify-center">
               <img
-                src="/heatmap-feed/cam1"
+                src={`${API_BASE}/heatmap-feed/cam1`}
                 alt="Activity Heatmap Feed"
                 className="w-full h-full object-contain"
                 onError={(e) => {

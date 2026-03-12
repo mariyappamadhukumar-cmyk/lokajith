@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useMonitoring } from "@/context/MonitoringContext";
+import { API_BASE } from "@/lib/apiConfig";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,8 +26,8 @@ const ReportsPage = () => {
     const fetchAnalytics = async () => {
       try {
         const [hourlyRes, weeklyRes] = await Promise.all([
-          fetch("/stats/hourly"),
-          fetch("/stats/weekly")
+          fetch(`${API_BASE}/stats/hourly`),
+          fetch(`${API_BASE}/stats/weekly`)
         ]);
 
         if (hourlyRes.ok) setHourlyData(await hourlyRes.json());

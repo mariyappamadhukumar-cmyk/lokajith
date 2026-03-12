@@ -1,5 +1,6 @@
 import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { API_BASE } from "@/lib/apiConfig";
 
 interface Detection {
   label: string;
@@ -23,7 +24,7 @@ const CameraFeed = ({ name, camId, isActive = true, compact = false, onDetection
   // Ensure camId is consistently used as-is, converted to lowercase to match backend registry keys
   const formattedCamId = camId.toLowerCase();
 
-  const streamUrl = `/video-feed/${formattedCamId}`;
+  const streamUrl = `${API_BASE}/video-feed/${formattedCamId}`;
 
 
   return (
