@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Vision - Connection Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .links {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .links h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .links a {
+            display: block;
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 0;
+            transition: color 0.3s;
+        }
+        
+        .links a:hover {
+            color: #764ba2;
+        }
+        
+        .test-section {
+            margin-top: 30px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        button:hover {
+            transform: scale(1.02);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .test-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-item.success {
+            background: #c6f6d5;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .test-item.error {
+            background: #fed7d7;
+            border-left: 4px solid #f56565;
+        }
+        
+        .test-item.info {
+            background: #bee3f8;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .test-item.warning {
+            background: #fefcbf;
+            border-left: 4px solid #ecc94b;
+        }
+        
+        .icon {
+            font-size: 1.2em;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Sentinel Vision</h1>
+        <p class="subtitle">IoT Connection Tester</p>
+        
+        <div class="links">
+            <h3>🌐 Deployment URLs</h3>
+            <a href="https://national-hackthon.vercel.app/" target="_blank">
+                🖥️ Frontend Dashboard: https://national-hackthon.vercel.app/
+            </a>
+            <a href="https://lokajith.onrender.com/" target="_blank">
+                🔧 Backend API: https://lokajith.onrender.com/
+            </a>
+            <a href="https://lokajith.onrender.com/docs" target="_blank">
+                📖 API Documentation: https://lokajith.onrender.com/docs
+            </a>
+        </div>
+        
+        <div class="test-section">
+            <button onclick="runTests()" id="testBtn">
+                🚀 Run Connection Tests
+            </button>
+            
+            <div id="results" class="results hide"></div>
+        </div>
+    </div>
+    
+    <script>
+        const BACKEND_URL = 'https://lokajith.onrender.com';
+        const FRONTEND_URL = 'https://national-hackthon.vercel.app';
+        
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.classList.remove('hide');
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            
+            const item = document.createElement('div');
+            item.className = `test-item ${type}`;
+            item.innerHTML = `<span class="icon">${icons[type]}</span><span>${message}</span>`;
+            resultsDiv.appendChild(item);
+            
+            // Auto-scroll to bottom
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function clearResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function testBackendStatus() {
+            addResult('Testing Backend Status... (may take 30-60s if sleeping)', 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`Backend is running: ${data.message}`, 'success');
+                    return true;
+                } else {
+                    addResult(`Backend returned status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult(`Backend connection failed: ${error.message}`, 'error');
+                addResult('Backend may be sleeping (Render free tier). Try again in a minute.', 'warning');
+                return false;
+            }
+        }
+        
+        async function testCamerasEndpoint() {
+            addResult('Testing Cameras Endpoint...', 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/cameras`);
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`Cameras endpoint working`, 'success');
+                    addResult(`Active cameras: ${data.active_cameras || 0}, Total: ${data.cameras?.length || 0}`, 'info');
+                    if (data.cameras && data.cameras.length > 0) {
+                        data.cameras.forEach(cam => {
+                            addResult(`  - ${cam.name} (${cam.id}): ${cam.active ? 'Active' : 'Inactive'}`, 'info');
+                        });
+                    } else {
+                        addResult('No cameras configured yet', 'warning');
+                    }
+                    return true;
+                } else {
+                    addResult(`Cameras endpoint returned status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult(`Cameras endpoint failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function testStatsEndpoint() {
+            addResult('Testing Stats Endpoint...', 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`Stats endpoint working`, 'success');
+                    addResult(`Detections - Person: ${data.PERSON || 0}, Weapon: ${data.WEAPON || 0}, Watchlist: ${data.WATCHLIST || 0}`, 'info');
+                    return true;
+                } else {
+                    addResult(`Stats endpoint returned status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult(`Stats endpoint failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function testAlertsEndpoint() {
+            addResult('Testing Alerts Endpoint...', 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/alerts`);
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`Alerts endpoint working`, 'success');
+                    addResult(`Active alerts: ${data.alerts?.length || 0}`, 'info');
+                    return true;
+                } else {
+                    addResult(`Alerts endpoint returned status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult(`Alerts endpoint failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function testFrontend() {
+            addResult('Testing Frontend Access...', 'info');
+            try {
+                const response = await fetch(FRONTEND_URL);
+                if (response.ok) {
+                    addResult('Frontend is accessible', 'success');
+                    return true;
+                } else {
+                    addResult(`Frontend returned status: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult(`Frontend access failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function runTests() {
+            const btn = document.getElementById('testBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Running Tests...';
+            
+            clearResults();
+            
+            addResult('='.repeat(50), 'info');
+            addResult('Sentinel Vision - Connection Test Started', 'info');
+            addResult('='.repeat(50), 'info');
+            
+            const results = {};
+            
+            // Run tests sequentially
+            results.backend = await testBackendStatus();
+            
+            if (results.backend) {
+                results.cameras = await testCamerasEndpoint();
+                results.stats = await testStatsEndpoint();
+                results.alerts = await testAlertsEndpoint();
+            } else {
+                addResult('Skipping other backend tests due to connection failure', 'warning');
+                results.cameras = false;
+                results.stats = false;
+                results.alerts = false;
+            }
+            
+            results.frontend = await testFrontend();
+            
+            // Summary
+            addResult('='.repeat(50), 'info');
+            addResult('Test Results Summary', 'info');
+            addResult('='.repeat(50), 'info');
+            
+            const passed = Object.values(results).filter(r => r).length;
+            const total = Object.keys(results).length;
+            
+            Object.entries(results).forEach(([test, result]) => {
+                const name = test.charAt(0).toUpperCase() + test.slice(1);
+                addResult(`${result ? '✅ PASS' : '❌ FAIL'} - ${name}`, result ? 'success' : 'error');
+            });
+            
+            addResult('='.repeat(50), 'info');
+            addResult(`Overall: ${passed}/${total} tests passed`, passed === total ? 'success' : 'warning');
+            
+            if (passed === total) {
+                addResult('🎉 All systems operational!', 'success');
+                addResult('Next steps:', 'info');
+                addResult('1. Open the dashboard at https://national-hackthon.vercel.app/', 'info');
+                addResult('2. Navigate to Cameras page', 'info');
+                addResult('3. Add your first IoT camera', 'info');
+            } else {
+                addResult('Some tests failed. Check the output above for details.', 'warning');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '🔄 Run Tests Again';
+        }
+    </script>
+</body>
+</html>
