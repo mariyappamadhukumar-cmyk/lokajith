@@ -127,6 +127,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Sentinel Vision API is running"}
+
 
 def gen_frames(camera_id: str, heatmap: bool = False):
     print(f"DEBUG: Starting gen_frames for {camera_id} (heatmap={heatmap})")
